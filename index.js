@@ -60,6 +60,7 @@ function GCSAdapter() {
 
 GCSAdapter.prototype.createFile = function(filename, data, contentType) {
   let params = {
+    public: this._directAccess,
     metadata: {
       contentType: contentType || 'application/octet-stream'
     }    
@@ -72,17 +73,7 @@ GCSAdapter.prototype.createFile = function(filename, data, contentType) {
     uploadStream.on('error', (err) => {
       return reject(err);
     }).on('finish', () => {
-      // Second call to set public read ACL after object is uploaded.
-      if (this._directAccess) {
-        file.makePublic((err, res) => {
-          if (err !== null) {
-            return reject(err);
-          }
-          resolve();
-        });
-      } else {
-        resolve();
-      }
+      resolve();
     });
     uploadStream.write(data);
     uploadStream.end();
